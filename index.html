@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>30 Days in Tokyo - Job Hunt EX</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="location-home">
+  <div id="game" class="game-shell">
+    <div class="scene game-area">
+
+      <!-- Background layer (expects assets/backgrounds/<location>.jpg, falls back to gradient) -->
+      <div id="backgroundLayer" class="background-layer"></div>
+
+      <!-- Character sprite layer (expects assets/characters/<id>.png, falls back via onerror) -->
+      <div id="characterLayer" class="character-layer">
+        <img
+          id="characterSprite"
+          src=""
+          alt="Character"
+          data-character="protagonist"
+        />
+      </div>
+
+      <!-- Floating resource change flashes -->
+      <div id="resourceFloats" class="resource-floats"></div>
+
+      <!-- Day badge (display only) -->
+      <button id="statsToggle" class="floating-btn stats-btn" type="button">
+        Day 1
+      </button>
+
+      <!-- Top UI: location name + description -->
+      <div class="top-ui">
+        <div class="location-badge">
+          <div class="location-main">
+            <span id="locationName">Home</span>
+          </div>
+          <div id="locationDesc" class="location-subtitle">
+            Your tiny apartment in a huge Japanese city. A place to rest and plan.
+          </div>
+        </div>
+      </div>
+
+      <!-- Small stats icon button (toggles stats panel) -->
+      <button
+        id="statsIconBtn"
+        class="floating-btn stats-icon-btn"
+        type="button"
+        aria-label="Status"
+      >
+        📊
+      </button>
+
+      <!-- Move button (thumb-friendly near above lower UI, icon-only) -->
+      <button
+        id="moveToggle"
+        class="floating-btn move-btn"
+        type="button"
+        aria-label="Move"
+      >
+        🧭
+      </button>
+
+      <!-- Stats overlay -->
+      <div id="statsPanel" class="overlay-panel stats-panel hidden">
+        <div class="overlay-card">
+          <div class="overlay-header">
+            <h2>Status</h2>
+            <button id="statsClose" class="overlay-close-btn" type="button">✕</button>
+          </div>
+          <div class="stats-grid">
+            <div class="stat-line">
+              <span class="label">Day</span>
+              <span><span id="stat-day">1</span> / 30</span>
+            </div>
+            <div class="stat-line">
+              <span class="label">Energy</span>
+              <span><span id="stat-energy">100</span> / 100</span>
+            </div>
+            <div class="stat-line">
+              <span class="label">Charm</span>
+              <span id="stat-charm">1</span>
+            </div>
+            <div class="stat-line">
+              <span class="label">Knowledge</span>
+              <span id="stat-knowledge">1</span>
+            </div>
+            <div class="stat-line">
+              <span class="label">Endurance</span>
+              <span id="stat-endurance">1</span>
+            </div>
+            <div class="stat-line">
+              <span class="label">Level</span>
+              <span id="stat-level">0</span>
+            </div>
+            <div class="stat-line">
+              <span class="label">Money</span>
+              <span>¥<span id="stat-money">5000</span></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Move bottom sheet -->
+      <div id="movePanel" class="overlay-panel move-panel hidden">
+        <div class="overlay-card">
+          <div class="overlay-header">
+            <h2>Move</h2>
+            <button id="moveClose" class="overlay-close-btn" type="button">✕</button>
+          </div>
+          <div id="navButtons" class="move-list"></div>
+        </div>
+      </div>
+
+      <!-- Interview panel (bottom sheet style) -->
+      <div id="interviewArea" class="overlay-panel interview-panel hidden"></div>
+
+      <!-- Lower UI: actions + dialogue box -->
+      <div class="lower-ui">
+        <div id="actions" class="actions-row">
+          <!-- Action buttons injected here -->
+        </div>
+
+        <div id="dialogueBox" class="dialogue-box">
+          <div id="dialogueSpeaker" class="dialogue-speaker">Narrator</div>
+          <div id="dialogueText" class="dialogue-text">
+            You wake up. 30 days to find a full-time job.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
