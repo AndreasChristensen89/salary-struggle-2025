@@ -1,0 +1,506 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+:root {
+  --bg-main: radial-gradient(circle at top, #e8faff 0, #c6f3ee 40%, #b3e3ff 100%);
+  --accent-teal: #1bc9a1;
+  --accent-blue: #2b8cff;
+  --accent-blue-soft: #5ccbff;
+  --accent-pink: #ff6fa6;
+  --panel-bg: rgba(255, 255, 255, 0.9);
+  --text-main: #05324d;
+  --text-muted: #5a7c96;
+  --danger: #ff5b63;
+  --shadow-strong: 0 16px 32px rgba(0, 0, 0, 0.18);
+  --radius-lg: 20px;
+  --radius-md: 14px;
+  --radius-pill: 999px;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: linear-gradient(135deg, #c0f2ff, #e3ffe5);
+  color: var(--text-main);
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  min-height: 100vh;
+}
+
+/* Game shell (mobile-first, centered) */
+.game-shell {
+  width: 100%;
+  max-width: 480px;
+  height: 100vh;
+  padding: 8px;
+  display: flex;
+  align-items: stretch;
+}
+
+/* Main scene container */
+.scene {
+  position: relative;
+  flex: 1;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-strong);
+  background: var(--bg-main);
+  color: var(--text-main);
+}
+
+/* Background layer: expects per-location background images */
+.background-layer {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at top, #d9f7ff 0, #bcece3 45%, #a6d8ff 100%);
+  background-size: cover;
+  background-position: center;
+  filter: saturate(1.1);
+  transform: scale(1.04);
+  transition: background-image 0.4s ease-out, transform 0.4s ease-out, filter 0.4s ease-out;
+}
+
+/* Character sprite layer */
+.character-layer {
+  position: absolute;
+  left: 50%;
+  bottom: 15%;
+  transform: translateX(-50%);
+  width: 50%;
+  max-height: 56%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  pointer-events: none;
+}
+
+#characterSprite {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.38));
+  opacity: 1;
+}
+
+/* Floating resource change flashes */
+.resource-floats {
+  position: absolute;
+  top: 26%;
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  z-index: 30;
+}
+
+.resource-float {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.25s ease-out, transform 0.25s ease-out;
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 11px;
+  color: #06405f;
+  border: 1px solid rgba(33, 150, 243, 0.35);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.15);
+}
+
+.resource-float.show {
+  opacity: 1;
+  transform: translateY(-10px);
+}
+
+/* Floating buttons (stats, stats icon & move) */
+.floating-btn {
+  position: absolute;
+  z-index: 10;
+  border: none;
+  border-radius: var(--radius-pill);
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #05324d;
+  background: linear-gradient(135deg, #ffffff, #f0fbff);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.18);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+}
+
+.floating-btn:active {
+  transform: translateY(1px) scale(0.98);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
+}
+
+/* Day badge (display-only, top-left) */
+.stats-btn {
+  top: 10px;
+  left: 12px;
+  pointer-events: none;
+  opacity: 0.98;
+}
+
+/* Top UI: location name + subtitle */
+.top-ui {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  top: 50px; /* just below Day pill */
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+}
+
+.location-badge {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  max-width: 100%;
+}
+
+.location-main {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  background: radial-gradient(circle at top left, #ffffff, #d8faff);
+  color: #05324d;
+  font-weight: 700;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.15);
+}
+
+.location-main span {
+  color: #05324d;
+}
+
+.location-subtitle {
+  font-size: 11px;
+  color: var(--text-muted);
+  padding-left: 4px;
+}
+
+/* Small stats icon button, above lower-ui on left */
+.stats-icon-btn {
+  bottom: 150px;
+  left: 16px;
+  width: 38px;
+  height: 38px;
+  border-radius: 999px;
+  padding: 0;
+  justify-content: center;
+  font-size: 18px;
+  background: radial-gradient(circle at top, #ffffff, #e0f4ff);
+}
+
+/* Move button above lower-ui on right (icon-only, blue gradient) */
+.move-btn {
+  bottom: 150px;
+  right: 16px;
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  padding: 0;
+  justify-content: center;
+  font-size: 22px;
+  background: linear-gradient(135deg, var(--accent-blue), var(--accent-blue-soft));
+  color: #fdfdff;
+}
+
+/* Overlay panels (stats, move, interview) */
+.overlay-panel {
+  position: absolute;
+  z-index: 20;
+  left: 0;
+  right: 0;
+  pointer-events: auto;
+}
+
+.overlay-card {
+  margin: 12px;
+  padding: 14px 14px 12px;
+  border-radius: var(--radius-md);
+  background: var(--panel-bg);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(33, 150, 243, 0.3);
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.18);
+}
+
+/* Stats panel: centered modal */
+.stats-panel {
+  top: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Move + Interview as bottom sheets */
+.move-panel,
+.interview-panel {
+  bottom: 0;
+}
+
+/* Shared overlay header */
+.overlay-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.overlay-header h2 {
+  font-size: 15px;
+  margin: 0;
+}
+
+.overlay-close-btn {
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  font-size: 15px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.overlay-close-btn:hover {
+  background: rgba(3, 169, 244, 0.08);
+  color: #0277bd;
+}
+
+/* Stats grid inside stats panel */
+.stats-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.stat-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.stat-line .label {
+  color: var(--text-muted);
+}
+
+/* Move list */
+.move-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Navigation buttons (used in Move panel) */
+.nav-btn {
+  width: 100%;
+  padding: 9px 11px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  background: linear-gradient(135deg, #e1f5fe, #c8fff4);
+  color: var(--text-main);
+  font-size: 13px;
+  font-weight: 600;
+  text-align: left;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+  transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
+}
+
+.nav-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 9px 20px rgba(0, 0, 0, 0.16);
+  filter: brightness(1.03);
+}
+
+.nav-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.14);
+}
+
+/* Lower UI: actions + dialogue */
+.lower-ui {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 10px 12px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: linear-gradient(
+    to top,
+    rgba(255, 255, 255, 0.96),
+    rgba(255, 255, 255, 0.92),
+    rgba(255, 255, 255, 0.86),
+    transparent
+  );
+}
+
+/* Actions row */
+.actions-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* Action buttons */
+.action-btn {
+  border: none;
+  border-radius: 999px;
+  padding: 8px 11px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  background: linear-gradient(135deg, var(--accent-blue), var(--accent-teal));
+  color: #fdfdff;
+  box-shadow: 0 7px 18px rgba(0, 0, 0, 0.18);
+  transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
+  white-space: nowrap;
+}
+
+.action-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 9px 22px rgba(0, 0, 0, 0.2);
+  filter: brightness(1.05);
+}
+
+.action-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.18);
+}
+
+.action-btn.disabled {
+  opacity: 0.5;
+  cursor: default;
+  box-shadow: none;
+}
+
+/* Dialogue box */
+.dialogue-box {
+  border-radius: 16px;
+  padding: 8px 10px 9px;
+  background: radial-gradient(circle at top left, rgba(255, 255, 255, 0.98), rgba(233, 248, 255, 0.98));
+  border: 1px solid rgba(33, 150, 243, 0.28);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.16);
+}
+
+.dialogue-speaker {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent-blue);
+  margin-bottom: 2px;
+}
+
+.dialogue-text {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-main);
+}
+
+/* Interview area content */
+.interview-panel .overlay-card {
+  margin-bottom: 8px;
+}
+
+/* Interview headings, notes */
+.interview-panel h3 {
+  margin: 0 0 4px;
+  font-size: 15px;
+}
+
+.interview-question {
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+
+.small-note {
+  font-size: 11px;
+  opacity: 0.8;
+  margin-bottom: 8px;
+  color: var(--text-muted);
+}
+
+/* Interview inputs and options */
+.interview-input {
+  padding: 7px 9px;
+  border-radius: 10px;
+  border: 1px solid rgba(33, 150, 243, 0.28);
+  font-size: 14px;
+  width: 100%;
+  max-width: 220px;
+  margin-bottom: 8px;
+  background: rgba(255, 255, 255, 0.96);
+  color: var(--text-main);
+}
+
+.interview-options {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.interview-options label {
+  font-size: 12px;
+  cursor: pointer;
+  color: var(--text-main);
+}
+
+/* Color buttons for reaction test */
+.color-buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.color-btn {
+  border: none;
+  border-radius: 999px;
+  padding: 7px 12px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 12px;
+  box-shadow: 0 7px 16px rgba(0, 0, 0, 0.18);
+  color: #033047;
+}
+
+.color-green { background: #b2f2d8; }
+.color-blue  { background: #b2e2ff; }
+.color-yellow{ background: #ffeaa7; }
+
+/* Hidden helper */
+.hidden {
+  display: none;
+}
+
+/* Desktop-ish: keep it centred, just limit width */
+@media (min-width: 800px) {
+  .game-shell {
+    max-width: 520px;
+  }
+}
