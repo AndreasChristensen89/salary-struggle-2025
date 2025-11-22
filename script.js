@@ -82,9 +82,9 @@ const DIALOGUE = {
 const gameState = {
   day: 1,
   energy: 100,
-  charm: 10,
-  knowledge: 10,
-  endurance: 10,
+  charm: 1,
+  knowledge: 1,
+  endurance: 1,
   level: 0,          // 0 = not accepted by recruiter, 1-4 = interview stages, 5 = full-time job
   money: 5000,
   location: "home",
@@ -155,7 +155,7 @@ const CHARACTER_BY_LOCATION = {
   conbini: "boss",
   callcenter: "boss",
   gambling: "dealer",
-  recruiter: "recruiter"
+  recruiter: ""
 };
 
 // Navigation graph: which places can you reach from where?
@@ -181,9 +181,7 @@ document.addEventListener("DOMContentLoaded", () => {
 /* ---------- UI helpers ---------- */
 
 function initUI() {
-  const statsClose = document.getElementById("statsClose");
   const moveToggle = document.getElementById("moveToggle");
-  const moveClose = document.getElementById("moveClose");
   const sprite = document.getElementById("characterSprite");
   const statsIconBtn = document.getElementById("statsIconBtn");
 
@@ -194,62 +192,96 @@ function initUI() {
     });
   }
 
-  if (statsClose) {
-    statsClose.addEventListener("click", (e) => {
-      e.stopPropagation();
-      const panel = document.getElementById("statsPanel");
-      panel && panel.classList.add("hidden");
-    });
-  }
-
   if (moveToggle) {
     moveToggle.addEventListener("click", (e) => {
       e.stopPropagation();
       toggleMovePanel();
     });
   }
-  if (moveClose) {
-    moveClose.addEventListener("click", (e) => {
-      e.stopPropagation();
-      const panel = document.getElementById("movePanel");
-      panel && panel.classList.add("hidden");
-    });
-  }
 
   // Character sprite fallback (placeholder if sprite not found)
   if (sprite) {
     sprite.addEventListener("error", () => {
-      sprite.src = "assets/characters/placeholder.png";
+      // sprite.src = "assets/characters/placeholder.png";
+      sprite.src = "";
     });
   }
 
-  // Click outside stats to close
+  // Click outside stats/move to close (but not interview)
   document.addEventListener("click", (e) => {
     const statsPanel = document.getElementById("statsPanel");
+    const movePanel = document.getElementById("movePanel");
     const statsIcon = document.getElementById("statsIconBtn");
-    if (!statsPanel || statsPanel.classList.contains("hidden")) return;
+    const moveBtn = document.getElementById("moveToggle");
 
-    const clickedInsidePanel = statsPanel.contains(e.target);
-    const clickedStatsBtn = statsIcon && statsIcon.contains(e.target);
+    // Stats: if open, and click outside card + button, close
+    if (statsPanel && statsPanel.classList.contains("open")) {
+      const card = statsPanel.querySelector(".overlay-card");
+      const clickedInsideCard = card && card.contains(e.target);
+      const clickedBtn = statsIcon && statsIcon.contains(e.target);
+      if (!clickedInsideCard && !clickedBtn) {
+        closePanel("statsPanel");
+      }
+    }
 
-    if (!clickedInsidePanel && !clickedStatsBtn) {
-      statsPanel.classList.add("hidden");
+    // Move: same logic
+    if (movePanel && movePanel.classList.contains("open")) {
+      const card = movePanel.querySelector(".overlay-card");
+      const clickedInsideCard = card && card.contains(e.target);
+      const clickedBtn = moveBtn && moveBtn.contains(e.target);
+      if (!clickedInsideCard && !clickedBtn) {
+        closePanel("movePanel");
+      }
     }
   });
 
   renderStats();
 }
 
+/* Shared open/close helpers for stats & move */
+
+function openPanel(panelId) {
+  const panel = document.getElementById(panelId);
+  if (!panel || gameState.gameOver) return;
+  if (!panel.classList.contains("hidden") && panel.classList.contains("open")) return;
+
+  panel.classList.remove("hidden");
+
+  // Wait a tick so transition can run
+  requestAnimationFrame(() => {
+    panel.classList.add("open");
+  });
+}
+
+function closePanel(panelId) {
+  const panel = document.getElementById(panelId);
+  if (!panel || panel.classList.contains("hidden")) return;
+
+  panel.classList.remove("open");
+  const onEnd = () => {
+    panel.classList.add("hidden");
+  };
+  panel.addEventListener("transitionend", onEnd, { once: true });
+}
+
 function toggleStatsPanel() {
   const panel = document.getElementById("statsPanel");
   if (!panel || gameState.gameOver) return;
-  panel.classList.toggle("hidden");
+  if (panel.classList.contains("hidden") || !panel.classList.contains("open")) {
+    openPanel("statsPanel");
+  } else {
+    closePanel("statsPanel");
+  }
 }
 
 function toggleMovePanel() {
   const panel = document.getElementById("movePanel");
   if (!panel || gameState.gameOver) return;
-  panel.classList.toggle("hidden");
+  if (panel.classList.contains("hidden") || !panel.classList.contains("open")) {
+    openPanel("movePanel");
+  } else {
+    closePanel("movePanel");
+  }
 }
 
 function renderStats() {
@@ -293,7 +325,8 @@ function updateVisualsForLocation(locationKey) {
 
   // Character sprite update
   const sprite = document.getElementById("characterSprite");
-  const charId = CHARACTER_BY_LOCATION[locationKey] || "protagonist";
+  // const charId = CHARACTER_BY_LOCATION[locationKey] || "protagonist";
+  const charId = CHARACTER_BY_LOCATION[locationKey] || "";
   if (sprite) {
     sprite.dataset.character = charId;
     sprite.src = `assets/characters/${charId}.png`;
@@ -309,9 +342,8 @@ function goToLocation(locationKey) {
 
   updateVisualsForLocation(locationKey);
 
-  // Close bottom sheets when moving
-  const movePanel = document.getElementById("movePanel");
-  if (movePanel) movePanel.classList.add("hidden");
+  // Close move panel when moving
+  closePanel("movePanel");
 
   const interviewArea = document.getElementById("interviewArea");
   if (interviewArea) {
